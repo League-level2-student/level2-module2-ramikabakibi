@@ -14,6 +14,12 @@ class Segment {
     this.X=X;
     this.Y=Y;
   }
+  int getX(){
+    return X;
+  }
+  int getY(){
+   return Y; 
+  }
 }
 
 
@@ -21,12 +27,12 @@ class Segment {
 // ***** GAME VARIABLES *****
 // All the game variables that will be shared by the game methods are here
 //*
-Segment segment;
+Segment segment; // head
 int foodX;
 int foodY;
 int snakeDirection=UP;
 int foodEaten=0;
-
+ArrayList<Segment> s=new ArrayList<Segment>(); // tail
 
 
 
@@ -38,7 +44,7 @@ int foodEaten=0;
 void setup() {
   size(500, 500);
   segment=new Segment(100, 100);
-  frameRate(20);
+  frameRate(15);
   dropFood();
 }
 
@@ -59,6 +65,7 @@ void draw() {
   drawFood();
   move();
   drawSnake();
+  eat();
 }
 
 void drawFood() {
@@ -67,8 +74,9 @@ void drawFood() {
 }
 
 void drawSnake() {
-  fill(0, 150, 0);
-  rect(segment.X, segment.Y, 10, 10);
+  fill(0, 255, 0);
+  rect(segment.getX(), segment.getY(), 10, 10);
+  manageTail();
 }
 
 
@@ -78,16 +86,30 @@ void drawSnake() {
 //*
 
 void drawTail() {
-  //Draw each segment of the tail
+  for(int i=0; i<s.size(); i++){
+    // s.get(i) => segment; segment.getX(); s.get(i).getX()
+    fill(0,255,0);
+    rect(s.get(i).getX(), s.get(i).getY(), 10,10);
+  }
 }
 
 void manageTail() {
+  checkTailCollision();
+  drawTail();
+   s.add(new Segment(segment.getX(), segment.getY()));
+  s.remove(0);
   //After drawing the tail, add a new segment at the "start" of the tail and remove the one at the "end" 
   //This produces the illusion of the snake tail moving.
 }
 
 void checkTailCollision() {
-  //If the snake crosses its own tail, shrink the tail back to one segment
+  for(int i=0; i<s.size();i++){
+  if(segment.getX() == s.get(i).getX() && segment.getY() == s.get(i).getY() ){
+    foodEaten=1;
+    s=new ArrayList<Segment>();
+    s.add(new Segment(segment.getX(), segment.getY()));
+  }
+  }
 }
 
 
@@ -126,16 +148,16 @@ void move() {
   switch(snakeDirection) {
   case UP:
     // move head up here 
-    segment.Y-=5;
+    segment.Y-=10;
     break;
   case DOWN:
-    segment.Y+=5;
+    segment.Y+=10;
     break;
   case LEFT:
-    segment.X-=5;
+    segment.X-=10;
     break;
   case RIGHT:
-    segment.X+=5;
+    segment.X+=10;
     break;
   }
   checkBoundaries();
@@ -163,5 +185,6 @@ void eat() {
     foodEaten++;
     foodX=((int)random(50)*10);
     foodY=((int)random(50)*10);
+    s.add(new Segment(segment.getX(), segment.getY()));
   }
 }
